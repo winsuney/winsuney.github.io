@@ -152,7 +152,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/11/感慨一下/">感慨一下</a>
+      <a class="article-title" href="/2017/04/11/感慨一下/">Golang加密系列之AES/CBC/PKCS7Padding</a>
     </h1>
   
 
@@ -165,7 +165,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>说点什么,先学md</p>
+        <p>加密代码：<br><figure class="highlight plain"><figcaption><span>Encrypt(plantText, key []byte) ([]byte, error) &#123;</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">   block, err := aes.NewCipher(key) //选择加密算法</div><div class="line">   if err != nil &#123;</div><div class="line">      return nil, err</div><div class="line">   &#125;</div><div class="line">   plantText = PKCS7Padding(plantText, block.BlockSize())</div><div class="line"></div><div class="line">   blockModel := cipher.NewCBCEncrypter(block, key)</div><div class="line"></div><div class="line">   ciphertext := make([]byte, len(plantText))</div><div class="line"></div><div class="line">   blockModel.CryptBlocks(ciphertext, plantText)</div><div class="line">   return ciphertext, nil</div><div class="line">&#125;</div><div class="line"></div><div class="line">func PKCS7Padding(ciphertext []byte, blockSize int) []byte &#123;</div><div class="line">   padding := blockSize - len(ciphertext)%blockSize</div><div class="line">   padtext := bytes.Repeat([]byte&#123;byte(padding)&#125;, padding)</div><div class="line">   return append(ciphertext, padtext...)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>解密代码：<br><figure class="highlight plain"><figcaption><span>Decrypt(ciphertext, key []byte) ([]byte, error) &#123;</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">   keyBytes := []byte(key)</div><div class="line">   block, err := aes.NewCipher(keyBytes) //选择加密算法</div><div class="line">   if err != nil &#123;</div><div class="line">      return nil, err</div><div class="line">   &#125;</div><div class="line">   blockModel := cipher.NewCBCDecrypter(block, keyBytes)</div><div class="line">   plantText := make([]byte, len(ciphertext))</div><div class="line">   blockModel.CryptBlocks(plantText, ciphertext)</div><div class="line">   plantText = PKCS7UnPadding(plantText, block.BlockSize())</div><div class="line">   return plantText, nil</div><div class="line">&#125;</div><div class="line"></div><div class="line">func PKCS7UnPadding(plantText []byte, blockSize int) []byte &#123;</div><div class="line">   length := len(plantText)</div><div class="line">   unpadding := int(plantText[length-1])</div><div class="line">   return plantText[:(length - unpadding)]</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 
       
 
